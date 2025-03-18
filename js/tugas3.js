@@ -32,5 +32,5 @@ function tampilkanProduk() {
 }
 
 tambahProduk("Monitor", 1500000, 4);
-hapusProduk(2); 
-tampilkanProduk(); 
+hapusProduk(2);
+tampilkanProduk();

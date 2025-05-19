@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('authors', function (Blueprint $table) {
             $table->id();
@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->timestamps();
         });
     }
+
 
 
     /**

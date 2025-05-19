@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->foreign('author_id')->references('id')->on('authors')->onDelete('cascade');
         });
     }
+
 
 
     /**

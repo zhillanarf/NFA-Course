@@ -2,51 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Author;
+use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
     public function index()
     {
-        return response()->json(Author::with('books')->get());
+        return response()->json(Author::all());
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string',
             'email' => 'required|email|unique:authors,email',
         ]);
-        $author = Author::create($data);
+
+        $author = Author::create($validated);
+
         return response()->json($author, 201);
     }
 
     public function show($id)
     {
-        $author = Author::with('books')->find($id);
-        if (!$author) return response()->json(['message' => 'Not found'], 404);
+        $author = Author::findOrFail($id);
         return response()->json($author);
     }
 
     public function update(Request $request, $id)
     {
-        $author = Author::find($id);
-        if (!$author) return response()->json(['message' => 'Not found'], 404);
+        $author = Author::findOrFail($id);
 
-        $data = $request->validate([
-            'name' => 'sometimes|required',
-            'email' => 'sometimes|required|email|unique:authors,email,' . $id,
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string',
+            'email' => 'sometimes|required|email|unique:authors,email,' . $author->id,
         ]);
-        $author->update($data);
+
+        $author->update($validated);
+
         return response()->json($author);
     }
 
     public function destroy($id)
     {
-        $author = Author::find($id);
-        if (!$author) return response()->json(['message' => 'Not found'], 404);
+        $author = Author::findOrFail($id);
         $author->delete();
-        return response()->json(['message' => 'Deleted']);
+
+        return response()->json(null, 204);
     }
 }

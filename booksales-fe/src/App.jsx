@@ -8,6 +8,10 @@ import Dashboard from "./pages/admin"
 import AdminBooks from "./pages/admin/books"
 import BookCreate from "./pages/admin/books/create"
 import Login from "./pages/auth/login"
+import AdminAuthors from "./pages/admin/authors"
+import AuthorCreate from "./pages/admin/authors/create"
+import AdminGenres from "./pages/admin/genres"
+import GenreCreate from "./pages/admin/genres/create"
 
 function App() {
 
@@ -32,6 +36,16 @@ function App() {
             <Route path="books">
               <Route index element={<AdminBooks />}></Route>
               <Route path="create" element={<BookCreate />}></Route>
+            </Route>
+
+            <Route path="authors">
+              <Route index element={<AdminAuthors />}></Route>
+              <Route path="create" element={<AuthorCreate />}></Route>
+            </Route>
+
+            <Route path="genres">
+              <Route index element={<AdminGenres />}></Route>
+              <Route path="create" element={<GenreCreate />}></Route>
             </Route>
           </Route>
         </Routes>

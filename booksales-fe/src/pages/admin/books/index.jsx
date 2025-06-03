@@ -1,4 +1,46 @@
+import { useEffect, useState } from "react";
+import { getBooks } from "../../../_services/books";
+import { getGenres } from "../../../_services/genres";
+import { Link } from "react-router-dom";
+import { getAuthors } from "../../../_services/authors";
+
 export default function AdminBooks() {
+    const [books, setBooks] = useState([]);
+    const [genres, setGenres] = useState([]);
+    const [authors, setAuthors] = useState([]);
+
+    const [openDropdownId, setOpenDropdownID] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const [booksData, genresData, authorsData] = await Promise.all([
+                getBooks(), 
+                getGenres(),
+                getAuthors(),
+            ])
+
+            setBooks(booksData)
+            setGenres(genresData)
+            setAuthors(authorsData)
+        }
+
+        fetchData()
+    }, [])
+
+    const getGenreName = (id) => {
+            const genre = genres.find((genre) => genre.id === id)
+            return genre ? genre.name : "unknown genre"
+    }
+
+    const getAuthorName = (id) => {
+            const author = authors.find((author) => author.id === id)
+            return author ? author.name : "unknown author"
+    }
+
+    const toggleDropdown = (id) => {
+        setOpenDropdownID(openDropdownId === id ? null : id)
+    }
+
   return (
     <>
       <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -36,8 +78,7 @@ export default function AdminBooks() {
                 </form>
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <button
-                  type="button"
+                <Link to={"/admin/books/create"}
                   className="flex items-center justify-center text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800"
                 >
                   <svg
@@ -54,7 +95,7 @@ export default function AdminBooks() {
                     />
                   </svg>
                   Add product
-                </button>
+                </Link>
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -62,19 +103,22 @@ export default function AdminBooks() {
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-4 py-3">
-                      Product name
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Category
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Brand
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Description
+                      Title
                     </th>
                     <th scope="col" className="px-4 py-3">
                       Price
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Stock
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Cover
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Genre
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Author
                     </th>
                     <th scope="col" className="px-4 py-3">
                       <span className="sr-only">Actions</span>
@@ -82,21 +126,25 @@ export default function AdminBooks() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b dark:border-gray-700">
+
+                    { books.length > 0 ?
+                    books.map((book) => (
+                  <tr key={book.id} className="border-b dark:border-gray-700">
                     <th
                       scope="row"
                       className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     >
-                      Apple iMac 27&#34;
+                      { book.title }
                     </th>
-                    <td className="px-4 py-3">PC</td>
-                    <td className="px-4 py-3">Apple</td>
-                    <td className="px-4 py-3">300</td>
-                    <td className="px-4 py-3">$2999</td>
-                    <td className="px-4 py-3 flex items-center justify-end">
+                    <td className="px-4 py-3">{ book.price }</td>
+                    <td className="px-4 py-3">{ book.stock }</td>
+                    <td className="px-4 py-3">{ book.cover_photo }</td>
+                    <td className="px-4 py-3">{ getGenreName(book.genre_id) }</td>
+                    <td className="px-4 py-3">{ getAuthorName(book.author_id) }</td>
+                    <td className="px-4 py-3 flex items-center justify-end relative">
                       <button
-                        id="apple-imac-27-dropdown-button"
-                        data-dropdown-toggle="apple-imac-27-dropdown"
+                        id={`dropdown-button-${book.id}`}
+                        onClick={() => toggleDropdown(book.id)}
                         className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                         type="button"
                       >
@@ -110,203 +158,42 @@ export default function AdminBooks() {
                           <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                         </svg>
                       </button>
+                        {openDropdownId === book.id && (
                       <div
                         id="apple-imac-27-dropdown"
-                        className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                        className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                        style={{ top: "100%", right: "0%" }}
                       >
                         <ul
                           className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                          aria-labelledby="apple-imac-27-dropdown-button"
+                          aria-labelledby={`dropdown-button-${book.id}`}
                         >
                           <li>
-                            <a
-                              href="#"
+                            <Link
+                              to={`/admin/books/edit/${book.id}`}
                               className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                             >
                               Edit
-                            </a>
+                            </Link>
                           </li>
                         </ul>
                         <div className="py-1">
-                          <a
-                            href="#"
+                          <button
+                            onClick={""}
                             className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                           >
                             Delete
-                          </a>
+                          </button>
                         </div>
                       </div>
+                      )}
                     </td>
                   </tr>
-                  <tr className="border-b dark:border-gray-700">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    >
-                      Apple iMac 20&#34;
-                    </th>
-                    <td className="px-4 py-3">PC</td>
-                    <td className="px-4 py-3">Apple</td>
-                    <td className="px-4 py-3">200</td>
-                    <td className="px-4 py-3">$1499</td>
-                    <td className="px-4 py-3 flex items-center justify-end">
-                      <button
-                        id="apple-imac-20-dropdown-button"
-                        data-dropdown-toggle="apple-imac-20-dropdown"
-                        className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                        type="button"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          aria-hidden="true"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                      </button>
-                      <div
-                        id="apple-imac-20-dropdown"
-                        className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                      >
-                        <ul
-                          className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                          aria-labelledby="apple-imac-20-dropdown-button"
-                        >
-                          <li>
-                            <a
-                              href="#"
-                              className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            >
-                              Edit
-                            </a>
-                          </li>
-                        </ul>
-                        <div className="py-1">
-                          <a
-                            href="#"
-                            className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Delete
-                          </a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="border-b dark:border-gray-700">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    >
-                      Apple iPhone 14
-                    </th>
-                    <td className="px-4 py-3">Phone</td>
-                    <td className="px-4 py-3">Apple</td>
-                    <td className="px-4 py-3">1237</td>
-                    <td className="px-4 py-3">$999</td>
-                    <td className="px-4 py-3 flex items-center justify-end">
-                      <button
-                        id="apple-iphone-14-dropdown-button"
-                        data-dropdown-toggle="apple-iphone-14-dropdown"
-                        className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                        type="button"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          aria-hidden="true"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                      </button>
-                      <div
-                        id="apple-iphone-14-dropdown"
-                        className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                      >
-                        <ul
-                          className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                          aria-labelledby="apple-iphone-14-dropdown-button"
-                        >
-                          <li>
-                            <a
-                              href="#"
-                              className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            >
-                              Edit
-                            </a>
-                          </li>
-                        </ul>
-                        <div className="py-1">
-                          <a
-                            href="#"
-                            className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Delete
-                          </a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="border-b dark:border-gray-700">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    >
-                      Apple iPad Air
-                    </th>
-                    <td className="px-4 py-3">Tablet</td>
-                    <td className="px-4 py-3">Apple</td>
-                    <td className="px-4 py-3">4578</td>
-                    <td className="px-4 py-3">$1199</td>
-                    <td className="px-4 py-3 flex items-center justify-end">
-                      <button
-                        id="apple-ipad-air-dropdown-button"
-                        data-dropdown-toggle="apple-ipad-air-dropdown"
-                        className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                        type="button"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          aria-hidden="true"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                      </button>
-                      <div
-                        id="apple-ipad-air-dropdown"
-                        className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                      >
-                        <ul
-                          className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                          aria-labelledby="apple-ipad-air-dropdown-button"
-                        >
-                          <li>
-                            <a
-                              href="#"
-                              className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            >
-                              Edit
-                            </a>
-                          </li>
-                        </ul>
-                        <div className="py-1">
-                          <a
-                            href="#"
-                            className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                          >
-                            Delete
-                          </a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  
+                      
+                    )) : (
+                        <p>data tidak ditemukan</p>
+                    )
+                }
                 </tbody>
               </table>
             </div>

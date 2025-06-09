@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getGenres } from "../../../_services/genres";
+import { getGenres, deleteGenre } from "../../../_services/genres";
 import { Link } from "react-router-dom";
 
 export default function AdminGenres() {
@@ -19,6 +19,14 @@ export default function AdminGenres() {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Apakah Anda ingin menghapus genre ini?");
+    if (confirmDelete) {
+      await deleteGenre(id);
+      setGenres(genres.filter((genre) => genre.id !== id));
+    }
+  };
+
   return (
     <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
       <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -32,7 +40,12 @@ export default function AdminGenres() {
                     <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <input type="text" id="simple-search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Search" />
+                <input
+                  type="text"
+                  id="simple-search"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  placeholder="Search"
+                />
               </div>
             </form>
           </div>
@@ -59,9 +72,7 @@ export default function AdminGenres() {
               {genres.length > 0 ? (
                 genres.map((genre) => (
                   <tr key={genre.id} className="border-b dark:border-gray-700">
-                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {genre.name}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{genre.name}</td>
                     <td className="px-4 py-3">{genre.description}</td>
                     <td className="px-4 py-3 flex items-center justify-end relative">
                       <button
@@ -87,7 +98,7 @@ export default function AdminGenres() {
                           </ul>
                           <div className="py-1">
                             <button
-                              onClick={() => {}}
+                              onClick={() => handleDelete(genre.id)}
                               className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                             >
                               Delete

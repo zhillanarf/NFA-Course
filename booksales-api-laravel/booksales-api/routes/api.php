@@ -15,18 +15,18 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResource('books', BookController::class)->only(['index', 'show']);
-Route::apiResource('authors', AuthorController::class)->only(['index', 'show']);
-Route::apiResource('genres', GenreController::class)->only(['index', 'show']);
+Route::apiResource('books', BookController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+Route::apiResource('authors', AuthorController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+Route::apiResource('genres', GenreController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
 
 Route::middleware(['auth:api'])->group(function () {
     Route::apiResource('transactions', TransactionController::class)->only(['show', 'store', 'update']);
     
     Route::middleware(['role:admin'])->group(function (){
-        Route::apiResource('books', BookController::class)->only(['store', 'update', 'destroy']);
-        Route::apiResource('authors', AuthorController::class)->only(['store', 'update', 'destroy']);
-        Route::apiResource('genres', GenreController::class)->only(['store', 'update', 'destroy']);
+        // Route::apiResource('books', BookController::class)->only(['store', 'update', 'destroy']);
+        // Route::apiResource('authors', AuthorController::class)->only(['store', 'update', 'destroy']);
+        // Route::apiResource('genres', GenreController::class)->only(['store', 'update', 'destroy']);
         Route::apiResource('transactions', TransactionController::class)->only(['index', 'destroy']);
     });
     
